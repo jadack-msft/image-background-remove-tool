@@ -26,7 +26,7 @@ import os
 import gdown
 import tarfile
 from libs.strings import MODELS_NAMES
-
+import argparse
 
 class Config:
     """Config object"""
@@ -140,15 +140,18 @@ def setup():
                     pass
 
 
-def cli():
-    print("Choose which model you want to install:\n{}\nall".format('\n'.join(MODELS_NAMES)))
-    model_name = input("Enter model name: ")
+def cli(model_name):
+    if model_name is None:
+        print("Choose which model you want to install:\n{}\nall".format('\n'.join(MODELS_NAMES)))
+        model_name = input("Enter model name: ")
+        
     if model_name == "all":
         setup()
     elif model_name == "u2net":
         if not os.path.exists(Config.u2_dir):
             os.makedirs(Config.u2_dir)
-        gdown.download(Config.u2_url, os.path.join(Config.u2_dir, "u2net.pth"), quiet=False)
+        if not os.path.exists(os.path.join(Config.u2_dir, "u2net.pth")):
+            gdown.download(Config.u2_url, os.path.join(Config.u2_dir, "u2net.pth"), quiet=False)
     elif model_name == "basnet":
         if not os.path.exists(Config.bn_dir):
             os.makedirs(Config.bn_dir)
@@ -194,4 +197,8 @@ def cli():
 
 
 if __name__ == "__main__":
-    cli()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str)
+    args = parser.parse_args()
+
+    cli(args.model)
